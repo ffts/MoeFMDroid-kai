@@ -1,11 +1,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ffts.android.moefmdroid">
 
-    <application android:allowBackup="true"
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:name=".app.MoeApplication"
+        android:allowBackup="true"
         android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher"
->
-
+        android:icon="@drawable/ic_launcher">
+        <activity android:name=".activity.LoadingActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.OAuthActivity"/>
+        <activity android:name=".oauth.OAuthWebActivity"/>
     </application>
 
 </manifest>

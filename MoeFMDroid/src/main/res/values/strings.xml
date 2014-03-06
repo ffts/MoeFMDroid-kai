@@ -1,3 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- texts -->
     <string name="app_name">MoeFMDroid</string>
+    <string name="title_activity_oauth">契约</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="need_oauth">你的收音姬尚未与萌否娘签订契约，或契约已经失效，是否与萌否娘签订契约？</string>
+
+    <!-- buttons -->
+    <string name="bt_qb_ok">签订契约</string>
+    <string name="bt_qb_shine">不签订契约</string>
+    <string name="title_activity_moe_player">MoePlayer</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
 </resources>
