@@ -14,6 +14,15 @@ import ffts.android.moefmdroid.oauth.MoeOAuth;
  */
 public class MoeClient {
 
+    //API地址
+    public static final String HOST_MOEFOU = "http://api.moefou.org/";
+    public static final String HOST_MOEFM = "http://moe.fm/";
+    public static final String API_OAUTH_REQUEST_TOKEN = "oauth/request_token";
+    public static final String API_OAUTH_AUTHORIZE = "oauth/authorize";
+    public static final String API_OAUTH_ACCESS_TOKEN = "oauth/access_token";
+    public static final String API_USER_DETAIL = "user/detail.json";
+    public static final String API_FM_PLAYLIST = "listen/playlist?api=json";
+
     private static MoeClient instance;
     private AsyncHttpClient client = new AsyncHttpClient();
 
@@ -46,6 +55,10 @@ public class MoeClient {
 
     public void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler handler) {
         client.get(context, sign(url), params, handler);
+    }
+
+    public void get(String url, MoeDataResponseHandler handler) {
+        client.get(sign(url), handler);
     }
 
     public void post(String url, AsyncHttpResponseHandler handler) {

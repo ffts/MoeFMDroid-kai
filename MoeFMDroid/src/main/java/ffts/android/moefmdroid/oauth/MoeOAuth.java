@@ -2,6 +2,7 @@ package ffts.android.moefmdroid.oauth;
 
 import android.util.Log;
 
+import ffts.android.moefmdroid.http.MoeClient;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -33,9 +34,10 @@ public class MoeOAuth {
     private MoeOAuth() {
         consumer = new CommonsHttpOAuthConsumer(CONSUMERKEY, CONSUMERSECRET);
         provider = new CommonsHttpOAuthProvider(
-                "http://api.moefou.org/oauth/request_token",
-                "http://api.moefou.org/oauth/access_token",
-                "http://api.moefou.org/oauth/authorize");
+                MoeClient.HOST_MOEFOU + MoeClient.API_OAUTH_REQUEST_TOKEN,
+                MoeClient.HOST_MOEFOU + MoeClient.API_OAUTH_ACCESS_TOKEN,
+                MoeClient.HOST_MOEFOU + MoeClient.API_OAUTH_AUTHORIZE
+        );
     }
 
     public String getAccess_Token() {

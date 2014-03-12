@@ -9,9 +9,17 @@ import android.app.Application;
  */
 public class MoeApplication extends Application {
 
+    private static MoeApplication instance;
+
+    public static MoeApplication getApplication() {
+        if (instance == null) {
+            instance = new MoeApplication();
+        }
+        return instance;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-
     }
 }
