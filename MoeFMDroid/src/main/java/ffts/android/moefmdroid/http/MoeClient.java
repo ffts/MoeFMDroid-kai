@@ -4,7 +4,13 @@ import android.content.Context;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.ResponseHandlerInterface;
+
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HttpContext;
 
 import ffts.android.moefmdroid.oauth.MoeOAuth;
 
@@ -27,6 +33,7 @@ public class MoeClient {
     private AsyncHttpClient client = new AsyncHttpClient();
 
     private MoeClient() {
+        super();
         client = new AsyncHttpClient();
     }
 
@@ -46,7 +53,7 @@ public class MoeClient {
     }
 
     public void get(String url, RequestParams params, AsyncHttpResponseHandler handler) {
-        client.get(sign(url), params, handler);
+        client.get(sign(AsyncHttpClient.getUrlWithQueryString(true, url, params)), handler);
     }
 
     public void get(Context context, String url, AsyncHttpResponseHandler handler) {
@@ -54,7 +61,7 @@ public class MoeClient {
     }
 
     public void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler handler) {
-        client.get(context, sign(url), params, handler);
+        client.get(context, sign(AsyncHttpClient.getUrlWithQueryString(true, url, params)), handler);
     }
 
     public void get(String url, MoeDataResponseHandler handler) {
@@ -71,6 +78,28 @@ public class MoeClient {
 
     public void post(Context context, String url, RequestParams params, AsyncHttpResponseHandler handler) {
         client.post(context, sign(url), params, handler);
+    }
+
+
+    /**
+     * 获取播放列表
+     * @param mode      播放模式
+     * @param page      页数
+     * @param context   context，用来取消请求，可以为空
+     * @param handler   请求结果处理handler
+     */
+    public void getPlayList(String mode, int page, Context context, AsyncHttpResponseHandler handler) {
+        RequestParams params = new RequestParams();
+        params.put("page", page);
+        params.put("perpage", 9);
+        params.put("fav", mode);
+        if (context == null) {
+            get(
+                    HOST_MOEFM + API_FM_PLAYLIST,
+                    params,
+                    handler
+            );
+        }
     }
 
 }

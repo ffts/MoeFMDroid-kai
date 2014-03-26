@@ -1,20 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ffts.android.moefmdroid">
+    package="ffts.android.moefmdroid" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
-        android:name=".app.MoeApplication"
+        android:name="ffts.android.moefmdroid.app.MoeApplication"
         android:allowBackup="true"
-        android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher">
-        <activity android:name=".activity.LoadingActivity">
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name" >
+        <activity android:name="ffts.android.moefmdroid.activity.LoadingActivity" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.OAuthActivity"/>
-        <activity android:name=".oauth.OAuthWebActivity"/>
+        <activity android:name="ffts.android.moefmdroid.activity.OAuthActivity" />
+        <activity android:name="ffts.android.moefmdroid.oauth.OAuthWebActivity" />
+
+        <service
+            android:name="ffts.android.moefmdroid.player.MoePlayerService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <activity
+            android:name="ffts.android.moefmdroid.player.MoePlayerActivity"
+            android:label="@string/title_activity_moe_player"
+            android:theme="@style/Theme.AppCompat">
+        </activity>
     </application>
 
 </manifest>

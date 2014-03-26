@@ -23,8 +23,8 @@ public class Song {
     private String sub_title;
     private String sub_url;
     private String artist;
-    private String fav_wiki;
-    private String fav_sub;
+    private Fav fav_wiki;
+    private Fav fav_sub;
 
     public String getUp_id() {
         return up_id;
@@ -162,19 +162,19 @@ public class Song {
         this.artist = artist;
     }
 
-    public String getFav_wiki() {
+    public Fav getFav_wiki() {
         return fav_wiki;
     }
 
-    public void setFav_wiki(String fav_wiki) {
+    public void setFav_wiki(Fav fav_wiki) {
         this.fav_wiki = fav_wiki;
     }
 
-    public String getFav_sub() {
+    public Fav getFav_sub() {
         return fav_sub;
     }
 
-    public void setFav_sub(String fav_sub) {
+    public void setFav_sub(Fav fav_sub) {
         this.fav_sub = fav_sub;
     }
 }

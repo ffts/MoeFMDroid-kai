@@ -2,6 +2,11 @@ package ffts.android.moefmdroid.oauth;
 
 import android.util.Log;
 
+import com.loopj.android.http.RequestParams;
+
+import java.util.Map;
+import java.util.SortedSet;
+
 import ffts.android.moefmdroid.http.MoeClient;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
@@ -9,6 +14,8 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
+import oauth.signpost.http.HttpParameters;
+import oauth.signpost.http.HttpRequest;
 
 /**
  * Created by ffts on 13-8-4.
@@ -125,6 +132,18 @@ public class MoeOAuth {
             }
         } else {
             return url;
+        }
+    }
+
+    public void sign(org.apache.http.HttpRequest request) {
+        try {
+            consumer.sign(request);
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
         }
     }
 
