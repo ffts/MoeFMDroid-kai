@@ -176,14 +176,18 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
     }
 
     @Override
-    public void OnSongListUpdated(List<Song> songs) {
+    public void OnSongListUpdated(List<Song> songs, boolean needRefresh) {
         if (mSongs == null) {
             mSongs = new ArrayList<Song>();
-        } else {
+        }
+        if (needRefresh) {
             mSongs.clear();
         }
         mSongs.addAll(songs);
         songPagerAdapter.notifyDataSetChanged();
+        if (needRefresh) {
+            songPager.setCurrentItem(0);
+        }
     }
 
     @Override

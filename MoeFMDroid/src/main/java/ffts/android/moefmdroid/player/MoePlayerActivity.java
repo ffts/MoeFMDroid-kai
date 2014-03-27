@@ -101,12 +101,9 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
 
     @Override
     public boolean onNavigationItemSelected(int position, long id) {
-        // When the given dropdown item is selected, show its contents in the
-        // container view.
-//        getSupportFragmentManager().beginTransaction()
-//                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-//                .commit();
-        //todo 播放模式切换
+        if (moePlayerService != null) {
+            moePlayerService.requestPlayList(position, true);
+        }
         return true;
     }
 

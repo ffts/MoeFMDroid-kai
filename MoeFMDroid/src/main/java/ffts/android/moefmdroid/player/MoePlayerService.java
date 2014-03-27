@@ -36,10 +36,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     private List<Song> playList;
     private boolean isLoop = false;
     private boolean isRequesting = false;
-    private int index;
-
     private int playMode = PLAY_MODE_MAGIC;
-    private int page = 1;
+    private int index = 0;//歌曲index
+    private int page = 1;//播放列表页数
 
     private OnPreparedListener onPreparedListener;
     private OnUpdateListener onUpdateListener;
@@ -62,7 +61,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     @Override
     public IBinder onBind(Intent intent) {
-        requestPlayList(playMode = 2);
+        requestPlayList(playMode, true);
         return mBinder;
     }
 
@@ -77,10 +76,15 @@ public class MoePlayerService extends Service implements OnCompletionListener,
      * 请求播放列表
      *
      * @param mode 播放模式
+     * @param isRefresh 是否刷新播放列表
      */
-    private void requestPlayList(int mode) {
+    public void requestPlayList(int mode, final boolean isRefresh) {
         if (isRequesting) {
             return;
+        }
+        if (isRefresh) {
+            page = 1;
+            index = 0;
         }
         String parMode = "";
         if (mode == 1) {
@@ -102,9 +106,12 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                     @Override
                     public void onSuccess(List<Song> data) {
                         super.onSuccess(data);
+                        if (isRefresh) {
+                            playList.clear();
+                        }
                         playList.addAll(data);
                         if (onUpdateListener != null) {
-                            onUpdateListener.OnSongListUpdated(playList);
+                            onUpdateListener.OnSongListUpdated(playList, isRefresh);
                         }
                         if (page == 1) {
                             play();
@@ -136,6 +143,10 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         }
         Uri uri = Uri.parse(playList.get(index).getUrl());
         try {
+            if (mPlayer.isPlaying()) {
+                mPlayer.stop();
+            }
+            mPlayer.reset();
             mPlayer.setDataSource(this, uri);
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,17 +154,13 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         }
         mPlayer.prepareAsync();
         if ((playList.size() - index) < 3) {
-            requestPlayList(playMode);
+            requestPlayList(playMode, false);
         }
     }
 
     public void play(int index) {
         this.index = index;
         if (index < playList.size()) {
-            if (mPlayer.isPlaying()) {
-                mPlayer.stop();
-            }
-            mPlayer.reset();
             play();
         }
     }
@@ -219,7 +226,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
         public void OnSongUpdated(Song song);
 
-        public void OnSongListUpdated(List<Song> songs);
+        public void OnSongListUpdated(List<Song> songs, boolean needRefresh);
     }
 
     public void setOnUpdateListener(OnUpdateListener listener) {
@@ -270,4 +277,5 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     public int getCurrentIndex() {
         return index;
     }
+
 }
