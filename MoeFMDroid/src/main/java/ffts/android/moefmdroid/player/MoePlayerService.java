@@ -11,6 +11,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -39,6 +41,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     private int playMode = PLAY_MODE_MAGIC;
     private int index = 0;//歌曲index
     private int page = 1;//播放列表页数
+    private Song currentSong;
 
     private OnPreparedListener onPreparedListener;
     private OnUpdateListener onUpdateListener;
@@ -141,7 +144,8 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         if (playList == null || playList.size() < 0) {
             return;
         }
-        Uri uri = Uri.parse(playList.get(index).getUrl());
+        currentSong = playList.get(index);
+        Uri uri = Uri.parse(currentSong.getUrl());
         try {
             if (mPlayer.isPlaying()) {
                 mPlayer.stop();
@@ -192,6 +196,11 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
+        MoeClient.getInstance().logMusic(
+                Integer.toString(currentSong.getSub_id()),
+                this,
+                new AsyncHttpResponseHandler()
+        );
         changeProgress(false);
         next();
         if (onCompletedListener != null) {
