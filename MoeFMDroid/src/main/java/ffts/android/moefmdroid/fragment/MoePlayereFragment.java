@@ -1,4 +1,4 @@
-package ffts.android.moefmdroid;
+package ffts.android.moefmdroid.fragment;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -19,6 +19,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import ffts.android.moefmdroid.R;
 import ffts.android.moefmdroid.modules.Song;
 import ffts.android.moefmdroid.player.MoePlayerActivity;
 import ffts.android.moefmdroid.player.MoePlayerService;
@@ -29,7 +30,7 @@ import static ffts.android.moefmdroid.R.id.player_iv_cover;
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ffts.android.moefmdroid.MoePlayereFragment.MoePlayerController} interface
+ * {@link MoePlayereFragment.MoePlayerController} interface
  * to handle interaction events.
  * Use the {@link MoePlayereFragment#newInstance} factory method to
  * create an instance of this fragment.

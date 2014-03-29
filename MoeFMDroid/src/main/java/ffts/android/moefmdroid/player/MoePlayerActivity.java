@@ -12,7 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
-import ffts.android.moefmdroid.MoePlayereFragment;
+import ffts.android.moefmdroid.fragment.MoePlayereFragment;
 import ffts.android.moefmdroid.R;
 
 public class MoePlayerActivity extends ActionBarActivity implements ActionBar.OnNavigationListener,
