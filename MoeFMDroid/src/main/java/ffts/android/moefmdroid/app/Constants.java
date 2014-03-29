@@ -6,4 +6,7 @@ package ffts.android.moefmdroid.app;
  */
 public class Constants {
     public static final int REQUEST_CODE_FOROA = 0;
+
+    public static final int FAV_TYPE_LIKE = 1;
+    public static final int FAV_TYPE_HATE = 2;
 }

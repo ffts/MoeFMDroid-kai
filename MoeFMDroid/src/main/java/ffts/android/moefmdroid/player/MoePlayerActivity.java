@@ -26,7 +26,7 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
 
     private MoePlayerService moePlayerService;
 
-    private MoePlayereFragment playereFragment = new MoePlayereFragment();
+    private MoePlayereFragment playereFragment = MoePlayereFragment.newInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,9 +118,8 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 moePlayerService = ((MoePlayerService.MoePlayerBinder)iBinder).getService();
-                moePlayerService.setOnPreoaredListener(playereFragment);
+                moePlayerService.setOnStatusChangedListener(playereFragment);
                 moePlayerService.setOnUpdateListener(playereFragment);
-                moePlayerService.setOnCompletedListener(playereFragment);
             }
 
             @Override
@@ -134,6 +133,28 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    //todo 播放控制
+
+    @Override
+    public void OnPlayClick() {
+        moePlayerService.togglePlaying();
+    }
+
+    @Override
+    public void OnNextClick() {
+        moePlayerService.next();
+    }
+
+    @Override
+    public void OnLikeClick() {
+        moePlayerService.like();
+    }
+
+    @Override
+    public void OnHateClick() {
+        moePlayerService.hate(false);
     }
 
     public MoePlayerService getMoePlayerService() {

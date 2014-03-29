@@ -28,6 +28,9 @@ public class MoeClient {
     public static final String API_OAUTH_ACCESS_TOKEN = "oauth/access_token";
     public static final String API_USER_DETAIL = "user/detail.json";
     public static final String API_FM_PLAYLIST = "listen/playlist?api=json";
+    public static final String API_FM_LOG_MUSIC = "ajax/log?log_obj_type=sub&log_type=listen&obj_type=song&api=json";
+    public static final String API_MOE_ADD_FAV = "fav/add.json";
+    public static final String API_MOE_DELETE_FAV = "fav/delete.json";
 
     private static MoeClient instance;
     private AsyncHttpClient client = new AsyncHttpClient();
@@ -96,6 +99,94 @@ public class MoeClient {
         if (context == null) {
             get(
                     HOST_MOEFM + API_FM_PLAYLIST,
+                    params,
+                    handler
+            );
+        } else {
+            get(
+                    context,
+                    HOST_MOEFM + API_FM_PLAYLIST,
+                    params,
+                    handler
+            );
+        }
+    }
+
+    /**
+     * 播放记录
+     * @param songId    歌曲id，sub_id
+     * @param context   contedt
+     * @param handler   handler
+     */
+    public void logMusic(int songId, Context context, AsyncHttpResponseHandler handler) {
+        RequestParams params = new RequestParams();
+        params.put("obj_id", songId);
+        if (context == null) {
+            get(
+                    HOST_MOEFM + API_FM_LOG_MUSIC,
+                    params,
+                    handler
+            );
+        } else {
+            get(
+                    context,
+                    HOST_MOEFM + API_FM_LOG_MUSIC,
+                    params,
+                    handler
+            );
+        }
+    }
+
+    /**
+     * 收藏/取消收藏歌曲
+     * @param isCancel  是否取消
+     * @param songId    歌曲id
+     * @param context   context
+     * @param handler   handler
+     */
+    public void likeMusic(boolean isCancel, int songId, Context context, AsyncHttpResponseHandler handler) {
+        RequestParams params = new RequestParams();
+        params.put("fav_obj_type", "song");
+        params.put("fav_type", "1");
+        params.put("fav_obj_id", songId+"");
+        if (context == null) {
+            get(
+                    HOST_MOEFOU + (isCancel ? API_MOE_DELETE_FAV : API_MOE_ADD_FAV),
+                    params,
+                    handler
+            );
+        } else {
+            get(
+                    context,
+                    HOST_MOEFOU + (isCancel ? API_MOE_DELETE_FAV : API_MOE_ADD_FAV),
+                    params,
+                    handler
+            );
+        }
+    }
+
+    /**
+     * 抛弃/取消抛弃歌曲
+     * @param isCancel  是否取消
+     * @param songId    歌曲id
+     * @param context   context
+     * @param handler   handler
+     */
+    public void hateMusic(boolean isCancel, int songId, Context context, AsyncHttpResponseHandler handler) {
+        RequestParams params = new RequestParams();
+        params.put("fav_obj_type", "song");
+        params.put("fav_type", "2");
+        params.put("fav_obj_id", songId+"");
+        if (context == null) {
+            get(
+                    HOST_MOEFOU + (isCancel ? API_MOE_DELETE_FAV : API_MOE_ADD_FAV),
+                    params,
+                    handler
+            );
+        } else {
+            get(
+                    context,
+                    HOST_MOEFOU + (isCancel ? API_MOE_DELETE_FAV : API_MOE_ADD_FAV),
                     params,
                     handler
             );

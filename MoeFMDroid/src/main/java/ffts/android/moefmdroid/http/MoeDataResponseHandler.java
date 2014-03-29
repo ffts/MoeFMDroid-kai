@@ -13,6 +13,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import ffts.android.moefmdroid.utils.DebugUtils;
+import ffts.android.moefmdroid.utils.ToastUtils;
 
 /**
  * Created by ffts on 14-3-11.
@@ -48,6 +49,7 @@ public class MoeDataResponseHandler<DataType> extends JsonHttpResponseHandler {
             } else {
                 DebugUtils.debug("request error:" +
                         response.getJSONObject("response").getJSONObject("information").getString("msg"));
+                ToastUtils.toast(response.getJSONObject("response").getJSONObject("information").getString("msg"));
             }
         } catch (JSONException e) {
             e.printStackTrace();

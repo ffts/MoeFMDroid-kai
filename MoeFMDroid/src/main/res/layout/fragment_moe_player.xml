@@ -48,25 +48,25 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <ImageButton
-                android:id="@+id/player_bt_like"
+                android:id="@+id/player_ib_like"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/btn_like"/>
             <ImageButton
-                android:id="@+id/player_bt_play"
+                android:id="@+id/player_ib_play"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/btn_play"/>
             <ImageButton
-                android:id="@+id/player_bt_next"
+                android:id="@+id/player_ib_next"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/btn_next"/>
             <ImageButton
-                android:id="@+id/player_bt_unlike"
+                android:id="@+id/player_ib_hate"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

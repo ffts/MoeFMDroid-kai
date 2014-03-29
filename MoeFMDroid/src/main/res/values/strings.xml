@@ -17,5 +17,6 @@
     <string name="title_play_mode_music">专辑收藏</string>
     <string name="title_play_mode_radio">电台收藏</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="msg_like_success">收藏成功</string>
 
 </resources>

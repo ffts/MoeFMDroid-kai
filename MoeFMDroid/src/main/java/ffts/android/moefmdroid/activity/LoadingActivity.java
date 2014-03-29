@@ -32,34 +32,35 @@ public class LoadingActivity extends Activity {
     }
 
     private void checkOAuth() {
+        //todo 完善授权验证
         SharedPreferences sp = getSharedPreferences("user", MODE_PRIVATE);
         String token = sp.getString("token", "");
         String token_secret = sp.getString("token_secret", "");
         if (StringUtils.isNotNull(token, token_secret)) {
             MoeOAuth.getInstance().setSign(token, token_secret);
             startActivity(new Intent(this, MoePlayerActivity.class));
-//            RequestParams params = new RequestParams();
-//            params.put("fav", "music");
-//            MoeClient.getInstance().get(
-//                    MoeClient.HOST_MOEFM + MoeClient.API_FM_PLAYLIST, params,
-//                    new MoeDataResponseHandler<List<Song>>("playlist") {
-//
-//                        @Override
-//                        public void onSuccess(List<Song> data) {
-//                            super.onSuccess(data);
-//                            for (Song song : data) {
-//                                DebugUtils.debug("request success:" + song.getSub_title());
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Throwable e, JSONObject errorResponse) {
-//                            super.onFailure(e, errorResponse);
-//                            DebugUtils.debug("request faild");
-//                            e.printStackTrace();
-//                        }
-//                    }
-//            );
+            RequestParams params = new RequestParams();
+            params.put("fav", "music");
+            MoeClient.getInstance().get(
+                    MoeClient.HOST_MOEFM + MoeClient.API_FM_PLAYLIST, params,
+                    new MoeDataResponseHandler<List<Song>>("playlist") {
+
+                        @Override
+                        public void onSuccess(List<Song> data) {
+                            super.onSuccess(data);
+                            for (Song song : data) {
+                                DebugUtils.debug("request success:" + song.getSub_title());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Throwable e, JSONObject errorResponse) {
+                            super.onFailure(e, errorResponse);
+                            DebugUtils.debug("request faild");
+                            e.printStackTrace();
+                        }
+                    }
+            );
         } else {
             startActivityForResult(new Intent(this, OAuthActivity.class), Constants.REQUEST_CODE_FOROA);
         }

@@ -1,6 +1,7 @@
 package ffts.android.moefmdroid.app;
 
 import android.app.Application;
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
@@ -23,19 +24,17 @@ import java.io.File;
  */
 public class MoeApplication extends Application {
 
-    private static MoeApplication instance;
-
-    public static MoeApplication getApplication() {
-        if (instance == null) {
-            instance = new MoeApplication();
-        }
-        return instance;
-    }
+    private static Context context;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        context = getApplicationContext();
         initImageLoader();
+    }
+
+    public static Context getContext() {
+        return context;
     }
 
     private void initImageLoader() {

@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -23,7 +24,6 @@ import ffts.android.moefmdroid.player.MoePlayerActivity;
 import ffts.android.moefmdroid.player.MoePlayerService;
 
 import static ffts.android.moefmdroid.R.id.player_iv_cover;
-import static ffts.android.moefmdroid.R.id.player_viewpager;
 
 
 /**
@@ -34,8 +34,8 @@ import static ffts.android.moefmdroid.R.id.player_viewpager;
  * Use the {@link MoePlayereFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MoePlayereFragment extends Fragment implements MoePlayerService.OnPreparedListener,
-        MoePlayerService.OnUpdateListener, MoePlayerService.OnCompletedListener {
+public class MoePlayereFragment extends Fragment implements MoePlayerService.OnPlayerStatusChangedListener,
+        MoePlayerService.OnUpdateListener, View.OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -54,22 +54,12 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
     private ViewPager songPager;
     private PlayerSongAdapter songPagerAdapter;
     private TextView time_current, time_total;
+    private ImageButton ibPlay, ibNext, ibLike, ibHate;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MoePlayereFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MoePlayereFragment newInstance(String param1, String param2) {
+    public static MoePlayereFragment newInstance() {
         MoePlayereFragment fragment = new MoePlayereFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
+//        Bundle args = new Bundle();
+//        fragment.setArguments(args);
         return fragment;
     }
 
@@ -103,6 +93,11 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
                 if (position != ((MoePlayerActivity) getActivity()).getCurrentIndex()) {
                     ((MoePlayerActivity) getActivity()).getMoePlayerService().play(position);
                 }
+                if (mSongs.get(position).getFav_sub() != null) {
+                    ibLike.setImageResource(R.drawable.btn_liked);
+                } else {
+                    ibLike.setImageResource(R.drawable.btn_like);
+                }
             }
 
             @Override
@@ -115,11 +110,17 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
         time_current = (TextView) view.findViewById(R.id.player_tv_current_time);
         time_total = (TextView) view.findViewById(R.id.player_tv_total_time);
         mProgressBar = (ProgressBar) view.findViewById(R.id.player_pb_progress);
-        //todo 播放操作按钮
+        ibPlay = (ImageButton) view.findViewById(R.id.player_ib_play);
+        ibPlay.setOnClickListener(this);
+        ibNext = (ImageButton) view.findViewById(R.id.player_ib_next);
+        ibNext.setOnClickListener(this);
+        ibLike = (ImageButton) view.findViewById(R.id.player_ib_like);
+        ibLike.setOnClickListener(this);
+        ibHate = (ImageButton) view.findViewById(R.id.player_ib_hate);
+        ibHate.setOnClickListener(this);
         return view;
     }
 
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         moePlayerService = ((MoePlayerActivity) getActivity()).getMoePlayerService();
@@ -154,7 +155,7 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
     }
 
     @Override
-    public void OnPrepared(Song song, int duration) {
+    public void OnPrepared(Song song, int duration, int index) {
         int seconds = (duration / 1000) % 60;
         int minutes = duration / (1000 * 60);
         String totalTime =
@@ -162,6 +163,22 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
                         + (seconds < 10 ? "0"+seconds : seconds);
         time_total.setText(totalTime);
         mProgressBar.setMax(duration);
+        songPager.setCurrentItem(index);
+    }
+
+    @Override
+    public void OnPaused() {
+        ibPlay.setImageResource(R.drawable.btn_play);
+    }
+
+    @Override
+    public void OnResume() {
+        ibPlay.setImageResource(R.drawable.btn_pause);
+    }
+
+    @Override
+    public void OnCompleted(int nextIndex) {
+        songPager.setCurrentItem(nextIndex, true);
     }
 
     @Override
@@ -191,8 +208,46 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
     }
 
     @Override
-    public void OnCompleted(int nextIndex) {
-        songPager.setCurrentItem(nextIndex, true);
+    public void OnLiked(Song song, int index) {
+        if (song.getFav_sub() != null) {
+            ibLike.setImageResource(R.drawable.btn_liked);
+        } else {
+            ibLike.setImageResource(R.drawable.btn_like);
+        }
+        mSongs.set(index, song);
+    }
+
+    @Override
+    public void OnHated(List<Song> list) {
+        mSongs = list;
+        songPagerAdapter.notifyDataSetChanged();
+    }
+
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.player_ib_play:
+                if (mListener != null) {
+                    mListener.OnPlayClick();
+                }
+                break;
+            case R.id.player_ib_next:
+                if (mListener != null) {
+                    mListener.OnNextClick();
+                }
+                break;
+            case R.id.player_ib_like:
+                if (mListener != null) {
+                    mListener.OnLikeClick();
+                }
+                break;
+            case R.id.player_ib_hate:
+                if (mListener != null) {
+                    mListener.OnHateClick();
+                }
+                break;
+        }
     }
 
     /**
@@ -208,6 +263,14 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
     public interface MoePlayerController {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+
+        public void OnPlayClick();
+
+        public void OnNextClick();
+
+        public void OnLikeClick();
+
+        public void OnHateClick();
     }
 
     class PlayerSongAdapter extends PagerAdapter {
