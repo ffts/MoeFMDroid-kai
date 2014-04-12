@@ -15,8 +15,8 @@ public class DebugUtils {
     }
 
     public static void debug(String tag, String msg) {
-        if(isDebug){
-            Log.d(tag, msg);
+        if(isDebug) {
+            Log.d(tag, msg == null ? "msg is null!" : msg);
         }
     }
 }
