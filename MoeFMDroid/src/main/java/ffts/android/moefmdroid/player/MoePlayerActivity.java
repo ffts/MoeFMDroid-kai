@@ -78,10 +78,22 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
                 getSupportActionBar().getSelectedNavigationIndex());
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem fav = menu.findItem(R.id.action_fav_album);
+        if (fav != null && moePlayerService != null) {
+            if (!moePlayerService.isFavAlbum()) {
+                fav.setIcon(R.drawable.btn_ablum_like);
+            } else {
+                fav.setIcon(R.drawable.btn_ablum_liked);
+            }
+        }
+        return true;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.moe_player, menu);
         return true;
@@ -94,6 +106,10 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            return true;
+        }
+        if (id == R.id.action_fav_album) {
+            moePlayerService.likeAlbum();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -117,7 +133,7 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
         ServiceConnection connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                moePlayerService = ((MoePlayerService.MoePlayerBinder)iBinder).getService();
+                moePlayerService = ((MoePlayerService.MoePlayerBinder) iBinder).getService();
                 moePlayerService.setOnStatusChangedListener(playereFragment);
                 moePlayerService.setOnUpdateListener(playereFragment);
             }
@@ -155,6 +171,11 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
     @Override
     public void OnHateClick() {
         moePlayerService.hate(false);
+    }
+
+    @Override
+    public void OnLikeAlbumClick() {
+        moePlayerService.likeAlbum();
     }
 
     public MoePlayerService getMoePlayerService() {

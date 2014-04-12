@@ -4,7 +4,7 @@
     <!-- texts -->
     <string name="app_name">MoeFMDroid</string>
     <string name="title_activity_oauth">契约</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">设置</string>
     <string name="hello_world">Hello world!</string>
     <string name="need_oauth">你的收音姬尚未与萌否娘签订契约，或契约已经失效，是否与萌否娘签订契约？</string>
 
@@ -18,5 +18,7 @@
     <string name="title_play_mode_radio">电台收藏</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="msg_like_success">收藏成功</string>
+    <string name="action_fav_album">收藏专辑</string>
+    <string name="msg_like_album_success">收藏专辑成功</string>
 
 </resources>

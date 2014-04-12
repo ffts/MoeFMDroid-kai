@@ -144,7 +144,7 @@ public class MoeClient {
      * @param context   context
      * @param handler   handler
      */
-    public void likeMusic(boolean isCancel, int songId, Context context, AsyncHttpResponseHandler handler) {
+    public void likeSong(boolean isCancel, int songId, Context context, AsyncHttpResponseHandler handler) {
         RequestParams params = new RequestParams();
         params.put("fav_obj_type", "song");
         params.put("fav_type", "1");
@@ -172,11 +172,39 @@ public class MoeClient {
      * @param context   context
      * @param handler   handler
      */
-    public void hateMusic(boolean isCancel, int songId, Context context, AsyncHttpResponseHandler handler) {
+    public void hateSong(boolean isCancel, int songId, Context context, AsyncHttpResponseHandler handler) {
         RequestParams params = new RequestParams();
         params.put("fav_obj_type", "song");
         params.put("fav_type", "2");
         params.put("fav_obj_id", songId+"");
+        if (context == null) {
+            get(
+                    HOST_MOEFOU + (isCancel ? API_MOE_DELETE_FAV : API_MOE_ADD_FAV),
+                    params,
+                    handler
+            );
+        } else {
+            get(
+                    context,
+                    HOST_MOEFOU + (isCancel ? API_MOE_DELETE_FAV : API_MOE_ADD_FAV),
+                    params,
+                    handler
+            );
+        }
+    }
+
+    /**
+     * 收藏/取消收藏专辑
+     * @param isCancel  是否取消
+     * @param albumId    专辑id
+     * @param context   context
+     * @param handler   handler
+     */
+    public void likeAlbum(boolean isCancel, int albumId, Context context, AsyncHttpResponseHandler handler) {
+        RequestParams params = new RequestParams();
+        params.put("fav_obj_type", "music");
+        params.put("fav_type", "1");
+        params.put("fav_obj_id", albumId+"");
         if (context == null) {
             get(
                     HOST_MOEFOU + (isCancel ? API_MOE_DELETE_FAV : API_MOE_ADD_FAV),

@@ -3,7 +3,6 @@ package ffts.android.moefmdroid.player;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.media.MediaCodecList;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.*;
 import android.net.Uri;
@@ -24,7 +23,6 @@ import java.util.List;
 import ffts.android.moefmdroid.R;
 import ffts.android.moefmdroid.http.MoeClient;
 import ffts.android.moefmdroid.http.MoeDataResponseHandler;
-import ffts.android.moefmdroid.http.MoeResultResponseHandler;
 import ffts.android.moefmdroid.modules.Fav;
 import ffts.android.moefmdroid.modules.Song;
 import ffts.android.moefmdroid.utils.ToastUtils;
@@ -131,6 +129,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                         }
                         if (page == 1) {
                             play();
+                            if (onUpdateListener != null) {
+                                onUpdateListener.OnSongUpdated(currentSong);
+                            }
                         }
                         page++;
                     }
@@ -311,6 +312,8 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         public void OnLiked(Song song, int index);
 
         public void OnHated(List<Song> list);
+
+        public void OnLikedAlbum(Song song);
     }
 
     public void setOnUpdateListener(OnUpdateListener listener) {
@@ -393,7 +396,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                     ToastUtils.toast(getResources().getString(R.string.msg_like_success));
                 }
             };
-            MoeDataResponseHandler<Integer> delete = new MoeDataResponseHandler<Integer>("fav_id"){
+            MoeDataResponseHandler<Integer> delete = new MoeDataResponseHandler<Integer>("fav_id") {
                 @Override
                 public void onSuccess(Integer data) {
                     currentSong.setFav_sub(null);
@@ -403,13 +406,13 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                     }
                 }
             };
-            MoeClient.getInstance().likeMusic(isCancel, currentSong.getSub_id(), this, isCancel?delete:add);
+            MoeClient.getInstance().likeSong(isCancel, currentSong.getSub_id(), this, isCancel ? delete : add);
         }
     }
 
     public void hate(final boolean isCancel) {
         synchronized (lock) {
-            MoeDataResponseHandler<Fav> add = new MoeDataResponseHandler<Fav>("fav"){
+            MoeDataResponseHandler<Fav> add = new MoeDataResponseHandler<Fav>("fav") {
                 @Override
                 public void onSuccess(Fav data) {
                     super.onSuccess(data);
@@ -427,10 +430,71 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                     }
                 }
             };
-            MoeDataResponseHandler<Integer> delete = new MoeDataResponseHandler<Integer>("fav"){
+            MoeDataResponseHandler<Integer> delete = new MoeDataResponseHandler<Integer>("fav") {
                 ///todo 待实现
             };
-            MoeClient.getInstance().hateMusic(isCancel, currentSong.getSub_id(), this, isCancel?delete:add);
+            MoeClient.getInstance().hateSong(isCancel, currentSong.getSub_id(), this, isCancel ? delete : add);
+        }
+    }
+
+    public void likeAlbum() {
+        if (currentSong.getFav_wiki() != null) {
+            likeAlbum(true);
+        } else {
+            likeAlbum(false);
+        }
+    }
+
+    public void likeAlbum(boolean isCancel) {
+        synchronized (lock) {
+            MoeDataResponseHandler<Fav> add = new MoeDataResponseHandler<Fav>("fav") {
+                @Override
+                public void onSuccess(Fav data) {
+                    currentSong.setFav_wiki(data);
+                    playList.set(index, currentSong);
+                    if (onUpdateListener != null) {
+                        onUpdateListener.OnLikedAlbum(currentSong);
+                    }
+                    ToastUtils.toast(getResources().getString(R.string.msg_like_album_success));
+                }
+            };
+            MoeDataResponseHandler<Integer> delete = new MoeDataResponseHandler<Integer>("fav_id") {
+                @Override
+                public void onSuccess(Integer data) {
+                    currentSong.setFav_wiki(null);
+                    playList.set(index, currentSong);
+                    if (onUpdateListener != null) {
+                        onUpdateListener.OnLikedAlbum(currentSong);
+                    }
+                }
+            };
+            MoeClient.getInstance().likeAlbum(isCancel, currentSong.getWiki_id(), this, isCancel ? delete : add);
+        }
+    }
+
+    public Song getCurrentSong() {
+        return getCurrentSong();
+    }
+
+    public boolean isFavAlbum() {
+        if (currentSong == null) {
+            return false;
+        }
+        if (currentSong.getFav_wiki() == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public boolean isFavSong() {
+        if (currentSong == null) {
+            return false;
+        }
+        if (currentSong.getFav_sub() == null) {
+            return false;
+        } else {
+            return true;
         }
     }
 

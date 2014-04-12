@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="ffts.android.moefmdroid.player.MoePlayerActivity" >
+
+    <item
+        android:id="@+id/action_fav_album"
+        android:title="@string/action_fav_album"
+        android:icon="@drawable/btn_ablum_like"
+        app:showAsAction="always"/>
     
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"

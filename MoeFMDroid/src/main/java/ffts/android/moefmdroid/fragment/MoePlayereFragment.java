@@ -99,6 +99,7 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
                 } else {
                     ibLike.setImageResource(R.drawable.btn_like);
                 }
+                getActivity().invalidateOptionsMenu();
             }
 
             @Override
@@ -160,8 +161,8 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
         int seconds = (duration / 1000) % 60;
         int minutes = duration / (1000 * 60);
         String totalTime =
-                        (minutes < 10 ? "0"+minutes : minutes) + ":"
-                        + (seconds < 10 ? "0"+seconds : seconds);
+                (minutes < 10 ? "0" + minutes : minutes) + ":"
+                        + (seconds < 10 ? "0" + seconds : seconds);
         time_total.setText(totalTime);
         mProgressBar.setMax(duration);
         songPager.setCurrentItem(index);
@@ -190,7 +191,12 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
     @Override
     public void OnSongUpdated(Song song) {
-
+        getActivity().invalidateOptionsMenu();
+        if (song.getFav_sub() == null) {
+            ibLike.setImageResource(R.drawable.btn_like);
+        } else {
+            ibLike.setImageResource(R.drawable.btn_liked);
+        }
     }
 
     @Override
@@ -224,6 +230,10 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
         songPagerAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void OnLikedAlbum(Song song) {
+        getActivity().invalidateOptionsMenu();
+    }
 
     @Override
     public void onClick(View view) {
@@ -272,6 +282,8 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
         public void OnLikeClick();
 
         public void OnHateClick();
+
+        public void OnLikeAlbumClick();
     }
 
     class PlayerSongAdapter extends PagerAdapter {
