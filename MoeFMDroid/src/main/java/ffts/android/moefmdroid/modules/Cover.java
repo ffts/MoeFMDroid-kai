@@ -7,7 +7,7 @@ package ffts.android.moefmdroid.modules;
 public class Cover {
     private String small;
     private String medium;
-    private String suqare;
+    private String square;
     private String large;
 
     public String getSmall() {
@@ -26,12 +26,12 @@ public class Cover {
         this.medium = medium;
     }
 
-    public String getSuqare() {
-        return suqare;
+    public String getSquare() {
+        return square;
     }
 
-    public void setSuqare(String suqare) {
-        this.suqare = suqare;
+    public void setSquare(String square) {
+        this.square = square;
     }
 
     public String getLarge() {

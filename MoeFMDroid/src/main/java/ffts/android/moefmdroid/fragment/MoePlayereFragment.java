@@ -298,7 +298,7 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
             Song songInfo = mSongs.get(position);
             song.setText(songInfo.getTitle());
             album.setText(songInfo.getWiki_title());
-            ImageLoader.getInstance().displayImage(songInfo.getCover().getSuqare(), cover);
+            ImageLoader.getInstance().displayImage(songInfo.getCover().getSquare(), cover);
             container.addView(view);
             return view;
         }
