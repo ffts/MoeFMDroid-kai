@@ -29,7 +29,8 @@
         <activity
             android:name="ffts.android.moefmdroid.player.MoePlayerActivity"
             android:label="@string/title_activity_moe_player"
-            android:theme="@style/Theme.AppCompat">
+            android:theme="@style/Theme.AppCompat"
+            android:launchMode="singleTask">
         </activity>
     </application>
 

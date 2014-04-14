@@ -9,4 +9,7 @@ public class Constants {
 
     public static final int FAV_TYPE_LIKE = 1;
     public static final int FAV_TYPE_HATE = 2;
+
+    public static final String ACTION_NOTIFICATION_PLAY = "moefmdroid_notification_play";
+    public static final String ACTION_NOTIFICATION_NEXT = "moefmdroid_notification_next";
 }

@@ -1,7 +1,13 @@
 package ffts.android.moefmdroid.player;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.*;
@@ -10,6 +16,9 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.NotificationCompat;
+import android.view.LayoutInflater;
+import android.widget.RemoteViews;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -21,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import ffts.android.moefmdroid.R;
+import ffts.android.moefmdroid.app.Constants;
 import ffts.android.moefmdroid.http.MoeClient;
 import ffts.android.moefmdroid.http.MoeDataResponseHandler;
 import ffts.android.moefmdroid.modules.Fav;
@@ -53,9 +63,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     private int playState = PLAY_STATE_STOP;
 
     private OnPlayerStatusChangedListener onStatusChangedListener;
-    //    private OnPreparedListener onPreparedListener;
     private OnUpdateListener onUpdateListener;
-//    private OnCompletedListener onCompletedListener;
 
 
     public MoePlayerService() {
@@ -66,6 +74,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     @Override
     public void onCreate() {
         super.onCreate();
+        initBroadCastReciever();
     }
 
     @Override
@@ -190,6 +199,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             if (onStatusChangedListener != null) {
                 onStatusChangedListener.OnPaused();
             }
+            initNotification(true);
         }
     }
 
@@ -200,6 +210,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             if (onStatusChangedListener != null) {
                 onStatusChangedListener.OnResume();
             }
+            initNotification(false);
         }
     }
 
@@ -227,6 +238,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             onStatusChangedListener.OnPrepared(playList.get(index), mPlayer.getDuration(), index);
             onStatusChangedListener.OnResume();
         }
+        initNotification(false);
         changeProgress(true);
     }
 
@@ -496,6 +508,59 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         } else {
             return true;
         }
+    }
+
+    private void initNotification(boolean isPause) {
+        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layout_notification_status);
+        remoteViews.setTextViewText(R.id.nb_tv_time, currentSong.getTitle());
+        remoteViews.setImageViewResource(R.id.nb_iv_icon, R.drawable.ic_launcher);
+        if (isPause) {
+            remoteViews.setImageViewResource(R.id.nb_ib_play, R.drawable.btn_play);
+        } else {
+            remoteViews.setImageViewResource(R.id.nb_ib_play, R.drawable.btn_pause);
+        }
+        remoteViews.setOnClickPendingIntent(R.id.nb_ib_play, PendingIntent.getBroadcast(
+                this,
+                0,
+                new Intent(Constants.ACTION_NOTIFICATION_PLAY), 0));
+        remoteViews.setOnClickPendingIntent(R.id.nb_ib_next, PendingIntent.getBroadcast(
+                this,
+                0,
+                new Intent(Constants.ACTION_NOTIFICATION_NEXT), 0));
+        Intent notifiyIntent = new Intent(this, MoePlayerActivity.class);
+        PendingIntent pyIntent = PendingIntent.getActivity(
+                this,
+                0,
+                notifiyIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_launcher);
+        builder.setContentIntent(pyIntent);
+        builder.setContent(remoteViews);
+        builder.setOngoing(true);
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        manager.notify(10, builder.build());
+    }
+
+    BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null) {
+                return;
+            }
+            if (Constants.ACTION_NOTIFICATION_PLAY.equals(intent.getAction())) {
+                togglePlaying();
+            }else if (Constants.ACTION_NOTIFICATION_NEXT.equals(intent.getAction())) {
+                next();
+            }
+        }
+    };
+
+    private void initBroadCastReciever() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.ACTION_NOTIFICATION_PLAY);
+        filter.addAction(Constants.ACTION_NOTIFICATION_NEXT);
+        registerReceiver(notificationReceiver, filter);
     }
 
 }
