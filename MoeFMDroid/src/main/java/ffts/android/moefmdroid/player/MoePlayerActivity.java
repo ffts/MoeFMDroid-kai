@@ -88,6 +88,14 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
                 fav.setIcon(R.drawable.btn_ablum_liked);
             }
         }
+        MenuItem loop = menu.findItem(R.id.action_loop);
+        if (loop != null && moePlayerService != null) {
+            if (moePlayerService.isLooping()) {
+                loop.setIcon(R.drawable.ico_looping);
+            } else {
+                loop.setIcon(R.drawable.ico_loop);
+            }
+        }
         return true;
     }
 
@@ -110,6 +118,11 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
         }
         if (id == R.id.action_fav_album) {
             moePlayerService.likeAlbum();
+            return true;
+        }
+        if (id == R.id.action_loop) {
+            moePlayerService.toggleLoop();
+            invalidateOptionsMenu();
             return true;
         }
         return super.onOptionsItemSelected(item);

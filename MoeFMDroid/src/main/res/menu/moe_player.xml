@@ -1,16 +1,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="ffts.android.moefmdroid.player.MoePlayerActivity" >
+    tools:context="ffts.android.moefmdroid.player.MoePlayerActivity">
 
     <item
         android:id="@+id/action_fav_album"
-        android:title="@string/action_fav_album"
         android:icon="@drawable/btn_ablum_like"
-        app:showAsAction="always"/>
-    
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:title="@string/action_fav_album"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_loop"
+        android:title="@string/bt_loop"
+        android:icon="@drawable/ico_loop"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_settings"
         android:orderInCategory="100"
+        android:title="@string/action_settings"
         app:showAsAction="never" />
 </menu>

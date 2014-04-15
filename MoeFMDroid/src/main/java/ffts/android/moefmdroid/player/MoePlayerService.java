@@ -191,6 +191,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     public void play(int index) {
         this.index = index;
+        isLoop = false;
         if (index < playList.size()) {
             play();
         }
@@ -220,6 +221,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     public void next() {
         index++;
+        isLoop = false;
         if (index < playList.size()) {
             if (mPlayer.isPlaying()) {
                 mPlayer.stop();
@@ -255,9 +257,13 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         );
         changeProgress(false);
         playState = PLAY_STATE_STOP;
-        next();
-        if (onStatusChangedListener != null) {
-            onStatusChangedListener.OnCompleted(index);
+        if (isLoop) {
+            play();
+        } else {
+            next();
+            if (onStatusChangedListener != null) {
+                onStatusChangedListener.OnCompleted(index);
+            }
         }
     }
 
@@ -570,6 +576,18 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         filter.addAction(Constants.ACTION_NOTIFICATION_PLAY);
         filter.addAction(Constants.ACTION_NOTIFICATION_NEXT);
         registerReceiver(notificationReceiver, filter);
+    }
+
+    public void loop(boolean isLoop) {
+        this.isLoop = isLoop;
+    }
+
+    public boolean isLooping() {
+        return this.isLoop;
+    }
+
+    public void toggleLoop() {
+        isLoop = !isLoop;
     }
 
 }

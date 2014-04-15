@@ -20,5 +20,7 @@
     <string name="msg_like_success">收藏成功</string>
     <string name="action_fav_album">收藏专辑</string>
     <string name="msg_like_album_success">收藏专辑成功</string>
+    <string name="bt_loop">LOOP</string>
+    <string name="bt_looping">LOOPING</string>
 
 </resources>
