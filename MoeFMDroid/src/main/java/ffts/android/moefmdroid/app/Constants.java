@@ -12,4 +12,6 @@ public class Constants {
 
     public static final String ACTION_NOTIFICATION_PLAY = "moefmdroid_notification_play";
     public static final String ACTION_NOTIFICATION_NEXT = "moefmdroid_notification_next";
+
+    public static final int NOTIFICATION_ID_PLAYING = 0;
 }

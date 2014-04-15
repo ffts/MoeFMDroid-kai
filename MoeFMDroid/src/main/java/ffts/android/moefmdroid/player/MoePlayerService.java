@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -17,7 +16,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
-import android.view.LayoutInflater;
 import android.widget.RemoteViews;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -86,6 +84,12 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     public IBinder onBind(Intent intent) {
         requestPlayList(playMode, true);
         return mBinder;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        removePlayingNotification();
     }
 
     private void initPlayer() {
@@ -199,7 +203,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             if (onStatusChangedListener != null) {
                 onStatusChangedListener.OnPaused();
             }
-            initNotification(true);
+            showPlayingNotification(true);
         }
     }
 
@@ -210,7 +214,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             if (onStatusChangedListener != null) {
                 onStatusChangedListener.OnResume();
             }
-            initNotification(false);
+            showPlayingNotification(false);
         }
     }
 
@@ -238,7 +242,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             onStatusChangedListener.OnPrepared(playList.get(index), mPlayer.getDuration(), index);
             onStatusChangedListener.OnResume();
         }
-        initNotification(false);
+        showPlayingNotification(false);
         changeProgress(true);
     }
 
@@ -510,7 +514,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         }
     }
 
-    private void initNotification(boolean isPause) {
+    private void showPlayingNotification(boolean isPause) {
         RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layout_notification_status);
         remoteViews.setTextViewText(R.id.nb_tv_time, currentSong.getTitle());
         remoteViews.setImageViewResource(R.id.nb_iv_icon, R.drawable.ic_launcher);
@@ -537,9 +541,14 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         builder.setSmallIcon(R.drawable.ic_launcher);
         builder.setContentIntent(pyIntent);
         builder.setContent(remoteViews);
-        builder.setOngoing(true);
+        builder.setOngoing(!isPause);
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        manager.notify(10, builder.build());
+        manager.notify(Constants.NOTIFICATION_ID_PLAYING, builder.build());
+    }
+
+    private void removePlayingNotification() {
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        manager.cancel(Constants.NOTIFICATION_ID_PLAYING);
     }
 
     BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
