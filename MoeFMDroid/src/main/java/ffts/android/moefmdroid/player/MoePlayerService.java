@@ -90,6 +90,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     public void onDestroy() {
         super.onDestroy();
         removePlayingNotification();
+        unregisterReceiver(notificationReceiver);
     }
 
     private void initPlayer() {
