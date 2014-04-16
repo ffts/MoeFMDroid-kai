@@ -22,5 +22,6 @@
     <string name="msg_like_album_success">收藏专辑成功</string>
     <string name="bt_loop">LOOP</string>
     <string name="bt_looping">LOOPING</string>
+    <string name="msg_connect_error">链接失败</string>
 
 </resources>

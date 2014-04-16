@@ -7,18 +7,23 @@ import android.os.Bundle;
 
 import com.loopj.android.http.RequestParams;
 
+import org.apache.http.Header;
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
 import java.util.List;
 
+import ffts.android.moefmdroid.R;
 import ffts.android.moefmdroid.app.Constants;
 import ffts.android.moefmdroid.http.MoeClient;
 import ffts.android.moefmdroid.http.MoeDataResponseHandler;
+import ffts.android.moefmdroid.http.MoeResultResponseHandler;
 import ffts.android.moefmdroid.modules.Song;
 import ffts.android.moefmdroid.oauth.MoeOAuth;
 import ffts.android.moefmdroid.player.MoePlayerActivity;
 import ffts.android.moefmdroid.utils.DebugUtils;
 import ffts.android.moefmdroid.utils.StringUtils;
+import ffts.android.moefmdroid.utils.ToastUtils;
 
 /**
  * Created by ffts on 13-8-4.
@@ -38,26 +43,26 @@ public class LoadingActivity extends Activity {
         String token_secret = sp.getString("token_secret", "");
         if (StringUtils.isNotNull(token, token_secret)) {
             MoeOAuth.getInstance().setSign(token, token_secret);
-            startActivity(new Intent(this, MoePlayerActivity.class));
-            RequestParams params = new RequestParams();
-            params.put("fav", "music");
-            MoeClient.getInstance().get(
-                    MoeClient.HOST_MOEFM + MoeClient.API_FM_PLAYLIST, params,
-                    new MoeDataResponseHandler<List<Song>>("playlist") {
+            MoeClient.getInstance().getSelfDetail(
+                    this,
+                    new MoeResultResponseHandler() {
 
                         @Override
-                        public void onSuccess(List<Song> data) {
-                            super.onSuccess(data);
-                            for (Song song : data) {
-                                DebugUtils.debug("request success:" + song.getSub_title());
-                            }
+                        public void onSuccess() {
+                            super.onSuccess();
+                            startActivity(new Intent(LoadingActivity.this, MoePlayerActivity.class));
+                            finish();
                         }
 
                         @Override
-                        public void onFailure(Throwable e, JSONObject errorResponse) {
-                            super.onFailure(e, errorResponse);
-                            DebugUtils.debug("request faild");
-                            e.printStackTrace();
+                        public void onFailure(int statusCode, Header[] headers, String responseBody, Throwable e) {
+                            super.onFailure(statusCode, headers, responseBody, e);
+                            if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+                                startActivityForResult(new Intent(LoadingActivity.this, OAuthActivity.class), Constants.REQUEST_CODE_FOROA);
+                            } else {
+                                ToastUtils.toast(getResources().getString(R.string.msg_connect_error) + ":" + statusCode);
+                                e.printStackTrace();
+                            }
                         }
                     }
             );

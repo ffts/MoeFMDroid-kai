@@ -13,6 +13,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HttpContext;
 
 import ffts.android.moefmdroid.oauth.MoeOAuth;
+import ffts.android.moefmdroid.utils.DebugUtils;
 
 /**
  * Created by ffts on 13-8-4.
@@ -52,18 +53,22 @@ public class MoeClient {
     }
 
     public void get(String url, AsyncHttpResponseHandler handler) {
+        DebugUtils.debug(sign(url));
         client.get(sign(url), handler);
     }
 
     public void get(String url, RequestParams params, AsyncHttpResponseHandler handler) {
+        DebugUtils.debug(sign(AsyncHttpClient.getUrlWithQueryString(true, url, params)));
         client.get(sign(AsyncHttpClient.getUrlWithQueryString(true, url, params)), handler);
     }
 
     public void get(Context context, String url, AsyncHttpResponseHandler handler) {
+        DebugUtils.debug(sign(url));
         client.get(context, sign(url), handler);
     }
 
     public void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler handler) {
+        DebugUtils.debug(sign(AsyncHttpClient.getUrlWithQueryString(true, url, params)));
         client.get(context, sign(AsyncHttpClient.getUrlWithQueryString(true, url, params)), handler);
     }
 
@@ -216,6 +221,51 @@ public class MoeClient {
                     context,
                     HOST_MOEFOU + (isCancel ? API_MOE_DELETE_FAV : API_MOE_ADD_FAV),
                     params,
+                    handler
+            );
+        }
+    }
+
+    /**
+     * 获取用户信息
+     * @param uid       用户id
+     * @param context   context
+     * @param handler   handler
+     */
+    public void getUserDetail(long uid, Context context, AsyncHttpResponseHandler handler) {
+        RequestParams params = new RequestParams();
+        params.put("uid", uid);
+        if (context == null) {
+            get(
+                    HOST_MOEFOU + API_USER_DETAIL,
+                    params,
+                    handler
+            );
+        } else {
+            get(
+                    context,
+                    HOST_MOEFOU + API_USER_DETAIL,
+                    params,
+                    handler
+            );
+        }
+    }
+
+    /**
+     *
+     * @param context   context
+     * @param handler   handler
+     */
+    public void getSelfDetail(Context context, AsyncHttpResponseHandler handler) {
+        if (context == null) {
+            get(
+                    HOST_MOEFOU + API_USER_DETAIL,
+                    handler
+            );
+        } else {
+            get(
+                    context,
+                    HOST_MOEFOU + API_USER_DETAIL,
                     handler
             );
         }
