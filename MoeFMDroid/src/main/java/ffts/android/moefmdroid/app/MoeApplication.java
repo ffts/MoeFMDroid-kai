@@ -13,7 +13,11 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.core.download.HttpClientImageDownloader;
 import com.nostra13.universalimageloader.utils.StorageUtils;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.File;
 
@@ -44,12 +48,9 @@ public class MoeApplication extends Application {
                 .cacheOnDisc(true)
                 .build();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-                .memoryCacheExtraOptions(480, 800) // default = device screen dimensions
-                .discCacheExtraOptions(480, 800, Bitmap.CompressFormat.JPEG, 75, null)
                 .threadPoolSize(3) // default
                 .threadPriority(Thread.NORM_PRIORITY - 1) // default
                 .tasksProcessingOrder(QueueProcessingType.FIFO) // default
-                .denyCacheImageMultipleSizesInMemory()
                 .memoryCache(new LruMemoryCache(2 * 1024 * 1024))
                 .memoryCacheSize(2 * 1024 * 1024)
                 .memoryCacheSizePercentage(13) // default
