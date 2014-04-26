@@ -30,7 +30,8 @@
             android:name="ffts.android.moefmdroid.player.MoePlayerActivity"
             android:label="@string/title_activity_moe_player"
             android:theme="@style/Theme.AppCompat"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape">
         </activity>
     </application>
 
