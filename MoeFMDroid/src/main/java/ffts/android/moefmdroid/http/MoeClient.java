@@ -4,15 +4,10 @@ import android.content.Context;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.ResponseHandlerInterface;
-
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HttpContext;
 
 import ffts.android.moefmdroid.oauth.MoeOAuth;
+import ffts.android.moefmdroid.player.MoePlayerService;
 import ffts.android.moefmdroid.utils.DebugUtils;
 
 /**
@@ -99,7 +94,7 @@ public class MoeClient {
     public void getPlayList(String mode, int page, Context context, AsyncHttpResponseHandler handler) {
         RequestParams params = new RequestParams();
         params.put("page", page);
-        params.put("perpage", 9);
+        params.put("perpage", MoePlayerService.PLAY_LIST_SIZE);
         params.put("fav", mode);
         if (context == null) {
             get(

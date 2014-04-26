@@ -3,7 +3,6 @@ package ffts.android.moefmdroid.player;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.ActionBar;
@@ -12,11 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
-import ffts.android.moefmdroid.fragment.MoePlayereFragment;
 import ffts.android.moefmdroid.R;
+import ffts.android.moefmdroid.fragment.MoePlayereFragment;
 
 public class MoePlayerActivity extends ActionBarActivity implements ActionBar.OnNavigationListener,
-        MoePlayereFragment.MoePlayerController {
+        MoePlayerController {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -147,8 +146,12 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 moePlayerService = ((MoePlayerService.MoePlayerBinder) iBinder).getService();
+                if (playereFragment != null) {
+                    playereFragment.onServiceBind(moePlayerService);
+                }
                 moePlayerService.setOnStatusChangedListener(playereFragment);
                 moePlayerService.setOnUpdateListener(playereFragment);
+                moePlayerService.requestPlayList(true);
             }
 
             @Override
@@ -157,11 +160,6 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
             }
         };
         bindService(intent, connection, BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 
     //todo 播放控制
@@ -198,4 +196,9 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
     public int getCurrentIndex() {
         return moePlayerService.getCurrentIndex();
     }
+
+    public interface OnServiceBindListener {
+        public void onServiceBind(MoePlayerService service);
+    }
+
 }

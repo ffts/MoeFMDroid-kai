@@ -47,17 +47,22 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     public static final int PLAY_STATE_PLAYING = 0;
     public static final int PLAY_STATE_PAUSE = 1;
     public static final int PLAY_STATE_STOP = 2;
+    public static final int PLAY_LIST_SIZE = 9;
+
     public final Object lock = new Object();
 
     private final MoePlayerBinder mBinder = new MoePlayerBinder();
     private MediaPlayer mPlayer;
     private List<Song> playList;
+    private List<Song> discA;
+    private List<Song> discB;
+    private boolean isDiscB = false;
     private boolean isLoop = false;
     private boolean isRequesting = false;
-    private int playMode = PLAY_MODE_MAGIC;
     private int index = 0;//歌曲index
-    private int page = 1;//播放列表页数
+//    private int page = 1;//播放列表页数
     private Song currentSong;
+    private int playMode = PLAY_MODE_MAGIC;
     private int playState = PLAY_STATE_STOP;
 
     private OnPlayerStatusChangedListener onStatusChangedListener;
@@ -66,7 +71,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     public MoePlayerService() {
         initPlayer();
-        playList = new ArrayList<Song>();
+//        playList = new ArrayList<Song>();
+//        discA = new ArrayList<Song>();
+//        discB = new ArrayList<Song>();
     }
 
     @Override
@@ -82,7 +89,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     @Override
     public IBinder onBind(Intent intent) {
-        requestPlayList(playMode, true);
+//        requestPlayList(playMode, true);
         return mBinder;
     }
 
@@ -111,7 +118,8 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             return;
         }
         if (isRefresh) {
-            page = 1;
+//            page = 1;
+            isDiscB = false;
             index = 0;
         }
         String parMode = "";
@@ -122,7 +130,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         } else if (mode == 3) {
             parMode = "radio";
         }
-        MoeClient.getInstance().getPlayList(parMode, page, null,
+        MoeClient.getInstance().getPlayList(parMode, 1, null,
                 new MoeDataResponseHandler<List<Song>>("playlist") {
 
                     @Override
@@ -134,20 +142,28 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                     @Override
                     public void onSuccess(List<Song> data) {
                         super.onSuccess(data);
-                        if (isRefresh) {
-                            playList.clear();
+//                        if (isRefresh) {
+//                            playList.clear();
+//                        }
+                        if (!isRefresh && !isDiscB) {
+                            discB = data;
+                        } else {
+                            discA = data;
                         }
-                        playList.addAll(data);
+                        if (isRefresh) {
+                            playList = discA;
+                        }
+//                        playList.addAll(data);
                         if (onUpdateListener != null) {
                             onUpdateListener.OnSongListUpdated(playList, isRefresh);
                         }
-                        if (page == 1) {
+                        if (isRefresh) {
                             play();
                             if (onUpdateListener != null) {
                                 onUpdateListener.OnSongUpdated(currentSong);
                             }
                         }
-                        page++;
+//                        page++;
                     }
 
                     @Override
@@ -165,12 +181,20 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         );
     }
 
+    public void requestPlayList(boolean isRefresh) {
+        requestPlayList(playMode, isRefresh);
+    }
+
     private void play() {
         if (mPlayer == null) {
             return;
         }
         if (playList == null || playList.size() < 0) {
             return;
+        }
+        if (index > PLAY_LIST_SIZE) {
+            index = 0;
+            switchDisc();
         }
         currentSong = playList.get(index);
         Uri uri = Uri.parse(currentSong.getUrl());
@@ -185,7 +209,10 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             return;
         }
         mPlayer.prepareAsync();
-        if ((playList.size() - index) < 3) {
+        if (onUpdateListener != null) {
+            onUpdateListener.OnSongUpdated(currentSong);
+        }
+        if ((playList.size() - index) < 2) {
             requestPlayList(playMode, false);
         }
     }
@@ -381,6 +408,11 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     }
 
     public List<Song> getSongs() {
+//        if (isDiscB) {
+//            return discB;
+//        } else {
+//            return discA;
+//        }
         return this.playList;
     }
 
@@ -496,7 +528,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     }
 
     public Song getCurrentSong() {
-        return getCurrentSong();
+        return currentSong;
     }
 
     public boolean isFavAlbum() {
@@ -589,6 +621,14 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     public void toggleLoop() {
         isLoop = !isLoop;
+    }
+
+    private void switchDisc() {
+        if (isDiscB) {
+            playList = discA;
+        } else {
+            playList = discB;
+        }
     }
 
 }
