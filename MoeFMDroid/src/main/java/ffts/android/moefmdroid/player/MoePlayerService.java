@@ -250,6 +250,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     public void next() {
         index++;
         isLoop = false;
+        if (onStatusChangedListener != null) {
+            onStatusChangedListener.OnNext(index);
+        }
         if (index < playList.size()) {
             if (mPlayer.isPlaying()) {
                 mPlayer.stop();
@@ -330,6 +333,8 @@ public class MoePlayerService extends Service implements OnCompletionListener,
          * @param nextIndex 下一首的index
          */
         public void OnCompleted(int nextIndex);
+
+        public void OnNext(int nextIndex);
     }
 
     public void setOnStatusChangedListener(OnPlayerStatusChangedListener listener) {

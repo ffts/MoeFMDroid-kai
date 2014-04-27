@@ -161,6 +161,11 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
     }
 
     @Override
+    public void OnNext(int nextIndex) {
+        songPager.setCurrentItem(nextIndex, true);
+    }
+
+    @Override
     public void OnProgressUpdated(int progress, String progressString) {
         time_current.setText(progressString);
         mProgressBar.setProgress(progress);
