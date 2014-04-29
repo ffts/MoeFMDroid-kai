@@ -2,6 +2,7 @@ package ffts.android.moefmdroid.app;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
@@ -21,6 +22,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.File;
 
+import ffts.android.moefmdroid.player.MoePlayerService;
+
 
 /**
  * Created by kzh on 13-8-3.
@@ -35,6 +38,13 @@ public class MoeApplication extends Application {
         super.onCreate();
         context = getApplicationContext();
         initImageLoader();
+        startPlayerService();
+    }
+
+    private void startPlayerService() {
+        Intent intent = new Intent();
+        intent.setClass(this, MoePlayerService.class);
+        startService(intent);
     }
 
     public static Context getContext() {
