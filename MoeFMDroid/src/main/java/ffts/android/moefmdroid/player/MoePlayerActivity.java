@@ -57,6 +57,15 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
         initPlayer();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (moePlayerService != null) {
+            moePlayerService.removeOnStatusChangedListener();
+            moePlayerService.removeOnUpdateListener();
+        }
+    }
+
     private void initPlayer() {
         getSupportFragmentManager().beginTransaction().add(R.id.container, playereFragment).commit();
     }

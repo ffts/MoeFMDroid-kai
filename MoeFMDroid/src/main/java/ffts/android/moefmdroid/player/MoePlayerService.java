@@ -341,6 +341,10 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         this.onStatusChangedListener = listener;
     }
 
+    public void removeOnStatusChangedListener() {
+        this.onStatusChangedListener = null;
+    }
+
     public interface OnPreparedListener {
         public void OnPrepared(Song song, int duration, int index);
     }
@@ -373,6 +377,10 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     public void setOnUpdateListener(OnUpdateListener listener) {
         this.onUpdateListener = listener;
+    }
+
+    public void removeOnUpdateListener() {
+        this.onUpdateListener = null;
     }
 
     Handler progressHandler = new Handler() {
