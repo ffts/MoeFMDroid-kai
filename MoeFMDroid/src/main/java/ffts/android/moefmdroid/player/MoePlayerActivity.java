@@ -27,6 +27,8 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
 
     private MoePlayereFragment playereFragment = MoePlayereFragment.newInstance();
 
+    private boolean isMenuFirstSeleted = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,6 +140,10 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
 
     @Override
     public boolean onNavigationItemSelected(int position, long id) {
+        if (!isMenuFirstSeleted) {
+            isMenuFirstSeleted = true;
+            return false;
+        }
         if (moePlayerService != null) {
             moePlayerService.requestPlayList(position, true);
         }
@@ -160,7 +166,7 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
                 }
                 moePlayerService.setOnStatusChangedListener(playereFragment);
                 moePlayerService.setOnUpdateListener(playereFragment);
-                moePlayerService.requestPlayList(true);
+//                moePlayerService.requestPlayList(true);
             }
 
             @Override

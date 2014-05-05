@@ -71,9 +71,6 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     public MoePlayerService() {
         initPlayer();
-//        playList = new ArrayList<Song>();
-//        discA = new ArrayList<Song>();
-//        discB = new ArrayList<Song>();
     }
 
     @Override
@@ -89,7 +86,14 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     @Override
     public IBinder onBind(Intent intent) {
-//        requestPlayList(playMode, true);
+        if (currentSong == null) {
+            requestPlayList(playMode, true);
+        } else {
+            if (onUpdateListener != null) {
+                onUpdateListener.OnSongUpdated(currentSong);
+                onUpdateListener.OnSongListUpdated(playList, true);
+            }
+        }
         return mBinder;
     }
 
