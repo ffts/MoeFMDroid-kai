@@ -28,10 +28,6 @@ import static ffts.android.moefmdroid.R.id.player_iv_cover;
 
 public class MoePlayereFragment extends Fragment implements MoePlayerService.OnPlayerStatusChangedListener,
         MoePlayerService.OnUpdateListener, View.OnClickListener, MoePlayerActivity.OnServiceBindListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private MoePlayerController mListener;
     private ProgressBar mProgressBar;
@@ -135,14 +131,7 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
     @Override
     public void OnPrepared(Song song, int duration, int index) {
-        int seconds = (duration / 1000) % 60;
-        int minutes = duration / (1000 * 60);
-        String totalTime =
-                (minutes < 10 ? "0" + minutes : minutes) + ":"
-                        + (seconds < 10 ? "0" + seconds : seconds);
-        time_total.setText(totalTime);
-        mProgressBar.setMax(duration);
-//        songPager.setCurrentItem(index);
+
     }
 
     @Override
@@ -175,6 +164,7 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
     public void OnSongUpdated(Song song) {
         time_current.setText("00:00");
         time_total.setText(song.getStream_time());
+        mProgressBar.setMax(Integer.valueOf(song.getStream_length()) * 1000);
         getActivity().invalidateOptionsMenu();
         if (song.getFav_sub() == null) {
             ibLike.setImageResource(R.drawable.btn_like);
@@ -185,17 +175,6 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
     @Override
     public void OnSongListUpdated(List<Song> songs, boolean needRefresh) {
-//        if (mSongs == null) {
-//            mSongs = new ArrayList<Song>();
-//        }
-//        if (needRefresh) {
-//            mSongs.clear();
-//        }
-//        mSongs.addAll(songs);
-//        songPagerAdapter.notifyDataSetChanged();
-//        if (needRefresh) {
-//            songPager.setCurrentItem(0);
-//        }
         mSongs = songs;
         if (needRefresh) {
             songPagerAdapter.notifyDataSetChanged();
@@ -296,7 +275,7 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            ((ViewPager) container).removeView((View) object);
+            container.removeView((View) object);
         }
     }
 

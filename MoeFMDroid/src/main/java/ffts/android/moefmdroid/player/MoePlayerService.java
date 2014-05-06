@@ -381,6 +381,12 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     public void setOnUpdateListener(OnUpdateListener listener) {
         this.onUpdateListener = listener;
+        if (currentSong != null) {
+            onUpdateListener.OnSongUpdated(currentSong);
+        }
+        if (playList != null && playList.size() > 0) {
+            onUpdateListener.OnSongListUpdated(playList, true);
+        }
     }
 
     public void removeOnUpdateListener() {

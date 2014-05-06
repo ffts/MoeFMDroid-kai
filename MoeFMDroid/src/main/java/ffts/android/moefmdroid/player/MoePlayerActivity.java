@@ -166,7 +166,6 @@ public class MoePlayerActivity extends ActionBarActivity implements ActionBar.On
                 }
                 moePlayerService.setOnStatusChangedListener(playereFragment);
                 moePlayerService.setOnUpdateListener(playereFragment);
-//                moePlayerService.requestPlayList(true);
             }
 
             @Override
