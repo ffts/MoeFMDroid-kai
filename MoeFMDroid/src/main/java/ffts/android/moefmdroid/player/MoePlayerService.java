@@ -33,6 +33,7 @@ import ffts.android.moefmdroid.http.MoeClient;
 import ffts.android.moefmdroid.http.MoeDataResponseHandler;
 import ffts.android.moefmdroid.modules.Fav;
 import ffts.android.moefmdroid.modules.Song;
+import ffts.android.moefmdroid.utils.DebugUtils;
 import ffts.android.moefmdroid.utils.ToastUtils;
 
 public class MoePlayerService extends Service implements OnCompletionListener,
@@ -59,8 +60,8 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     private boolean isDiscB = false;
     private boolean isLoop = false;
     private boolean isRequesting = false;
-    private int index = 0;//歌曲index
-//    private int page = 1;//播放列表页数
+    private int index = 0;//播放列表index <= SIZE
+    //    private int page = 1;//播放列表页数
     private Song currentSong;
     private int playMode = PLAY_MODE_MAGIC;
     private int playState = PLAY_STATE_STOP;
@@ -196,11 +197,14 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         if (playList == null || playList.size() < 0) {
             return;
         }
-        if (index > PLAY_LIST_SIZE) {
-            index = 0;
-            switchDisc();
-        }
-        currentSong = playList.get(index);
+//        if (index > PLAY_LIST_SIZE) {
+//            index = 0;
+//            switchDisc();
+//        }
+        currentSong = playList.get(getTrackIndex());
+        DebugUtils.debug("moe_current_play_track:" + getTrackIndex());
+        DebugUtils.debug("moe_current_play_index:" + index);
+        DebugUtils.debug("moe_current_play_song:" + currentSong.getSub_title());
         Uri uri = Uri.parse(currentSong.getUrl());
         try {
             if (mPlayer.isPlaying()) {
@@ -216,17 +220,18 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         if (onUpdateListener != null) {
             onUpdateListener.OnSongUpdated(currentSong);
         }
-        if ((playList.size() - index) < 2) {
+        if ((playList.size() - getTrackIndex()) < 2) {
             requestPlayList(playMode, false);
         }
     }
 
     public void play(int index) {
         this.index = index;
-        isLoop = false;
-        if (index < playList.size()) {
-            play();
+        if ((index != 0) && (index % PLAY_LIST_SIZE == 0)) {
+            switchDisc();
         }
+        isLoop = false;
+        play();
     }
 
     public void pause() {
@@ -257,13 +262,14 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         if (onStatusChangedListener != null) {
             onStatusChangedListener.OnNext(index);
         }
-        if (index < playList.size()) {
-            if (mPlayer.isPlaying()) {
-                mPlayer.stop();
-            }
-            mPlayer.reset();
-            play();
-        }
+        play(index);
+//        if (index < playList.size()) {
+//            if (mPlayer.isPlaying()) {
+//                mPlayer.stop();
+//            }
+//            mPlayer.reset();
+//            play();
+//        }
     }
 
     @Override
@@ -276,7 +282,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         mPlayer.start();
         playState = PLAY_STATE_PLAYING;
         if (onStatusChangedListener != null) {
-            onStatusChangedListener.OnPrepared(playList.get(index), mPlayer.getDuration(), index);
+            onStatusChangedListener.OnPrepared(playList.get(getTrackIndex()), mPlayer.getDuration(), getTrackIndex());
             onStatusChangedListener.OnResume();
         }
         showPlayingNotification(false);
@@ -467,9 +473,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                 @Override
                 public void onSuccess(Fav data) {
                     currentSong.setFav_sub(data);
-                    playList.set(index, currentSong);
+                    playList.set(getTrackIndex(), currentSong);
                     if (onUpdateListener != null) {
-                        onUpdateListener.OnLiked(currentSong, index);
+                        onUpdateListener.OnLiked(currentSong, getTrackIndex());
                     }
                     ToastUtils.toast(getResources().getString(R.string.msg_like_success));
                 }
@@ -529,7 +535,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                 @Override
                 public void onSuccess(Fav data) {
                     currentSong.setFav_wiki(data);
-                    playList.set(index, currentSong);
+                    playList.set(getTrackIndex(), currentSong);
                     if (onUpdateListener != null) {
                         onUpdateListener.OnLikedAlbum(currentSong);
                     }
@@ -540,7 +546,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                 @Override
                 public void onSuccess(Integer data) {
                     currentSong.setFav_wiki(null);
-                    playList.set(index, currentSong);
+                    playList.set(getTrackIndex(), currentSong);
                     if (onUpdateListener != null) {
                         onUpdateListener.OnLikedAlbum(currentSong);
                     }
@@ -621,7 +627,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             }
             if (Constants.ACTION_NOTIFICATION_PLAY.equals(intent.getAction())) {
                 togglePlaying();
-            }else if (Constants.ACTION_NOTIFICATION_NEXT.equals(intent.getAction())) {
+            } else if (Constants.ACTION_NOTIFICATION_NEXT.equals(intent.getAction())) {
                 next();
             }
         }
@@ -648,10 +654,19 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     private void switchDisc() {
         if (isDiscB) {
-            playList = discA;
+            playList = discA == null ? playList : discA;
+            isDiscB = false;
         } else {
-            playList = discB;
+            playList = discB == null ? playList : discB;
+            isDiscB = true;
         }
+        if (onUpdateListener != null) {
+            onUpdateListener.OnSongListUpdated(playList, true);
+        }
+    }
+
+    public int getTrackIndex() {
+        return index % PLAY_LIST_SIZE;
     }
 
 }

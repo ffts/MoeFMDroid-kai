@@ -72,7 +72,7 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
             @Override
             public void onPageSelected(int position) {
                 if (position % MoePlayerService.PLAY_LIST_SIZE != ((MoePlayerActivity) getActivity()).getCurrentIndex()) {
-                    ((MoePlayerActivity) getActivity()).getMoePlayerService().play(position % MoePlayerService.PLAY_LIST_SIZE);
+                    ((MoePlayerActivity) getActivity()).getMoePlayerService().play(position);
                 }
                 if (moePlayerService.getCurrentSong().getFav_sub() != null) {
                     ibLike.setImageResource(R.drawable.btn_liked);
