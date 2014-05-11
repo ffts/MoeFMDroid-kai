@@ -60,6 +60,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     private boolean isDiscB = false;
     private boolean isLoop = false;
     private boolean isRequesting = false;
+    private boolean isPreparing = false;
     private int index = 0;//播放列表index <= SIZE
     //    private int page = 1;//播放列表页数
     private Song currentSong;
@@ -191,6 +192,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     }
 
     private void play() {
+        if (isPreparing) {
+            return;
+        }
         if (mPlayer == null) {
             return;
         }
@@ -213,6 +217,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             return;
         }
         mPlayer.prepareAsync();
+        isPreparing = true;
         if (onUpdateListener != null) {
             onUpdateListener.OnSongUpdated(currentSong);
         }
@@ -231,6 +236,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     }
 
     public void pause() {
+        if (isPreparing) {
+            return;
+        }
         if (mPlayer != null && playState == PLAY_STATE_PLAYING) {
             mPlayer.pause();
             playState = PLAY_STATE_PAUSE;
@@ -242,6 +250,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     }
 
     public void resume() {
+        if (isPreparing) {
+            return;
+        }
         if (mPlayer != null) {
             mPlayer.start();
             playState = PLAY_STATE_PLAYING;
@@ -253,6 +264,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     }
 
     public void next() {
+        if (isPreparing) {
+            return;
+        }
         index++;
         isLoop = false;
         if ((index != 0) && (index % PLAY_LIST_SIZE == 0)) {
@@ -271,6 +285,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
+        isPreparing = false;
         mPlayer.start();
         playState = PLAY_STATE_PLAYING;
         if (onStatusChangedListener != null) {
