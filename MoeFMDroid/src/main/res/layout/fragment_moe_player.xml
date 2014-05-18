@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ffts.android.moefmdroid.player.MoePlayerActivity$PlaceholderFragment">
 
-    <android.support.v4.view.ViewPager
+    <ffts.android.moefmdroid.view.NoSwipeViewPager
         android:id="@+id/player_viewpager"
         android:layout_width="match_parent"
         android:layout_height="0dp"

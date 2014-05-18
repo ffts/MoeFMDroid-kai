@@ -55,14 +55,10 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     private final MoePlayerBinder mBinder = new MoePlayerBinder();
     private MediaPlayer mPlayer;
     private List<Song> playList;
-    private List<Song> discA;
-    private List<Song> discB;
-    private boolean isDiscB = false;
     private boolean isLoop = false;
     private boolean isRequesting = false;
     private boolean isPreparing = false;
-    private int index = 0;//播放列表index <= SIZE
-    //    private int page = 1;//播放列表页数
+    private int index = 0;
     private Song currentSong;
     private int playMode = PLAY_MODE_MAGIC;
     private int playState = PLAY_STATE_STOP;
@@ -93,7 +89,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         } else {
             if (onUpdateListener != null) {
                 onUpdateListener.OnSongUpdated(currentSong);
-                onUpdateListener.OnSongListUpdated(playList, true);
+                onUpdateListener.OnSongListUpdated(playList, false);
             }
         }
         return mBinder;
@@ -123,17 +119,16 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         if (isRequesting) {
             return;
         }
+        playMode = mode;
         if (isRefresh) {
-//            page = 1;
-            isDiscB = false;
             index = 0;
         }
         String parMode = "";
-        if (mode == 1) {
+        if (playMode == 1) {
             parMode = "song";
-        } else if (mode == 2) {
+        } else if (playMode == 2) {
             parMode = "music";
-        } else if (mode == 3) {
+        } else if (playMode == 3) {
             parMode = "radio";
         }
         MoeClient.getInstance().getPlayList(parMode, 1, null,
@@ -148,28 +143,17 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                     @Override
                     public void onSuccess(List<Song> data) {
                         super.onSuccess(data);
-//                        if (isRefresh) {
-//                            playList.clear();
-//                        }
-                        if (!isRefresh && !isDiscB) {
-                            discB = data;
-                        } else {
-                            discA = data;
-                        }
                         if (isRefresh) {
-                            playList = discA;
+                            playList = data;
+                        } else {
+                            playList.addAll(data);
                         }
-//                        playList.addAll(data);
                         if (onUpdateListener != null) {
                             onUpdateListener.OnSongListUpdated(playList, isRefresh);
                         }
                         if (isRefresh) {
                             play();
-                            if (onUpdateListener != null) {
-                                onUpdateListener.OnSongUpdated(currentSong);
-                            }
                         }
-//                        page++;
                     }
 
                     @Override
@@ -191,20 +175,8 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         requestPlayList(playMode, isRefresh);
     }
 
-    private void play() {
-        if (isPreparing) {
-            return;
-        }
-        if (mPlayer == null) {
-            return;
-        }
-        if (playList == null || playList.size() < 0) {
-            return;
-        }
-        currentSong = playList.get(getTrackIndex());
-        DebugUtils.debug("moe_current_play_track:" + getTrackIndex());
-        DebugUtils.debug("moe_current_play_index:" + index);
-        DebugUtils.debug("moe_current_play_song:" + currentSong.getSub_title());
+    private void prepare() {
+        currentSong = playList.get(index);
         Uri uri = Uri.parse(currentSong.getUrl());
         try {
             if (mPlayer.isPlaying()) {
@@ -218,19 +190,33 @@ public class MoePlayerService extends Service implements OnCompletionListener,
         }
         mPlayer.prepareAsync();
         isPreparing = true;
-        if (onUpdateListener != null) {
-            onUpdateListener.OnSongUpdated(currentSong);
+    }
+
+    private void play() {
+        if (mPlayer == null) {
+            return;
         }
-        if ((playList.size() - getTrackIndex()) == 2) {
-            requestPlayList(playMode, false);
+        if (playList == null || playList.size() < 0) {
+            return;
+        }
+        if (index >= playList.size()) {
+            return;
+        }
+        if (!isPreparing) {
+            prepare();
+        }
+        if (onUpdateListener != null) {
+            onUpdateListener.OnSongUpdated(playList.get(index));
+            showPlayingNotification(false);
+        }
+        showPlayingNotification(false);
+        if ((playList.size() - index) < 2) {
+            requestPlayList(false);
         }
     }
 
     public void play(int index) {
         this.index = index;
-        if ((index != 0) && (index % PLAY_LIST_SIZE == 0)) {
-            switchDisc();
-        }
         isLoop = false;
         play();
     }
@@ -264,14 +250,14 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     }
 
     public void next() {
-        if (isPreparing) {
+        if (playList == null) {
+            return;
+        }
+        if (index == playList.size() - 1) {
             return;
         }
         index++;
         isLoop = false;
-        if ((index != 0) && (index % PLAY_LIST_SIZE == 0)) {
-            switchDisc();
-        }
         if (onStatusChangedListener != null) {
             onStatusChangedListener.OnNext(index);
         }
@@ -286,13 +272,20 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         isPreparing = false;
+        if (index != playList.indexOf(currentSong)) {
+            prepare();
+        } else {
+            start();
+        }
+    }
+
+    private void start() {
         mPlayer.start();
         playState = PLAY_STATE_PLAYING;
         if (onStatusChangedListener != null) {
-            onStatusChangedListener.OnPrepared(playList.get(getTrackIndex()), mPlayer.getDuration(), getTrackIndex());
+            onStatusChangedListener.OnPrepared(playList.get(index), mPlayer.getDuration(), index);
             onStatusChangedListener.OnResume();
         }
-        showPlayingNotification(false);
         changeProgress(true);
     }
 
@@ -351,6 +344,10 @@ public class MoePlayerService extends Service implements OnCompletionListener,
          */
         public void OnCompleted(int nextIndex);
 
+        /**
+         * 切换下一曲时的回调
+         * @param nextIndex 下一曲的index
+         */
         public void OnNext(int nextIndex);
     }
 
@@ -361,22 +358,6 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     public void removeOnStatusChangedListener() {
         this.onStatusChangedListener = null;
     }
-
-    public interface OnPreparedListener {
-        public void OnPrepared(Song song, int duration, int index);
-    }
-
-//    public void setOnPreoaredListener(OnPreparedListener listener) {
-//        this.onPreparedListener = listener;
-//    }
-
-    public interface OnCompletedListener {
-        public void OnCompleted(int nextIndex);
-    }
-
-//    public void setOnCompletedListener(OnCompletedListener listener) {
-//        this.onCompletedListener = listener;
-//    }
 
     public interface OnUpdateListener {
         public void OnProgressUpdated(int progress, String progressString);
@@ -398,7 +379,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
             onUpdateListener.OnSongUpdated(currentSong);
         }
         if (playList != null && playList.size() > 0) {
-            onUpdateListener.OnSongListUpdated(playList, true);
+            onUpdateListener.OnSongListUpdated(playList, false);
         }
     }
 
@@ -444,11 +425,6 @@ public class MoePlayerService extends Service implements OnCompletionListener,
     }
 
     public List<Song> getSongs() {
-//        if (isDiscB) {
-//            return discB;
-//        } else {
-//            return discA;
-//        }
         return this.playList;
     }
 
@@ -480,9 +456,9 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                 @Override
                 public void onSuccess(Fav data) {
                     currentSong.setFav_sub(data);
-                    playList.set(getTrackIndex(), currentSong);
+                    playList.set(index, currentSong);
                     if (onUpdateListener != null) {
-                        onUpdateListener.OnLiked(currentSong, getTrackIndex());
+                        onUpdateListener.OnLiked(currentSong, index);
                     }
                     ToastUtils.toast(getResources().getString(R.string.msg_like_success));
                 }
@@ -542,7 +518,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                 @Override
                 public void onSuccess(Fav data) {
                     currentSong.setFav_wiki(data);
-                    playList.set(getTrackIndex(), currentSong);
+                    playList.set(index, currentSong);
                     if (onUpdateListener != null) {
                         onUpdateListener.OnLikedAlbum(currentSong);
                     }
@@ -553,7 +529,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
                 @Override
                 public void onSuccess(Integer data) {
                     currentSong.setFav_wiki(null);
-                    playList.set(getTrackIndex(), currentSong);
+                    playList.set(index, currentSong);
                     if (onUpdateListener != null) {
                         onUpdateListener.OnLikedAlbum(currentSong);
                     }
@@ -591,7 +567,7 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     private void showPlayingNotification(boolean isPause) {
         RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layout_notification_status);
-        remoteViews.setTextViewText(R.id.nb_tv_time, currentSong.getTitle());
+        remoteViews.setTextViewText(R.id.nb_tv_time, playList.get(index).getTitle());
         remoteViews.setImageViewResource(R.id.nb_iv_icon, R.drawable.ic_launcher);
         if (isPause) {
             remoteViews.setImageViewResource(R.id.nb_ib_play, R.drawable.btn_play);
@@ -657,23 +633,6 @@ public class MoePlayerService extends Service implements OnCompletionListener,
 
     public void toggleLoop() {
         isLoop = !isLoop;
-    }
-
-    private void switchDisc() {
-        if (isDiscB) {
-            playList = discA == null ? playList : discA;
-            isDiscB = false;
-        } else {
-            playList = discB == null ? playList : discB;
-            isDiscB = true;
-        }
-        if (onUpdateListener != null) {
-            onUpdateListener.OnSongListUpdated(playList, true);
-        }
-    }
-
-    public int getTrackIndex() {
-        return index % PLAY_LIST_SIZE;
     }
 
 }

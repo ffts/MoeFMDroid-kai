@@ -31,8 +31,6 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
     private MoePlayerController mListener;
     private ProgressBar mProgressBar;
-    private long mDuration;
-    private List<Song> mSongs;
     private MoePlayerService moePlayerService;
     private ViewPager songPager;
     private PlayerSongAdapter songPagerAdapter;
@@ -55,7 +53,6 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
-//        mSongs = moePlayerService.getSongs();
     }
 
     @Override
@@ -71,9 +68,6 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
             @Override
             public void onPageSelected(int position) {
-                if (position % MoePlayerService.PLAY_LIST_SIZE != ((MoePlayerActivity) getActivity()).getCurrentIndex()) {
-                    ((MoePlayerActivity) getActivity()).getMoePlayerService().play(position);
-                }
                 if (moePlayerService.getCurrentSong().getFav_sub() != null) {
                     ibLike.setImageResource(R.drawable.btn_liked);
                 } else {
@@ -107,7 +101,6 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
         super.onActivityCreated(savedInstanceState);
         moePlayerService = ((MoePlayerActivity) getActivity()).getMoePlayerService();
         if (moePlayerService != null) {
-            mSongs = moePlayerService.getSongs();
             songPagerAdapter.notifyDataSetChanged();
         }
     }
@@ -146,7 +139,6 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
     @Override
     public void OnCompleted(int nextIndex) {
-        songPager.setCurrentItem(nextIndex, true);
     }
 
     @Override
@@ -175,9 +167,11 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
     @Override
     public void OnSongListUpdated(List<Song> songs, boolean needRefresh) {
-        mSongs = songs;
+        songPagerAdapter.notifyDataSetChanged();
         if (needRefresh) {
-            songPagerAdapter.notifyDataSetChanged();
+            songPager.setCurrentItem(0);
+        } else {
+            songPager.setCurrentItem(moePlayerService.getCurrentIndex(), false);
         }
     }
 
@@ -188,12 +182,14 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
         } else {
             ibLike.setImageResource(R.drawable.btn_like);
         }
-        mSongs.set(index, song);
+        if (moePlayerService != null) {
+            moePlayerService.getSongs().set(index, song);
+        }
     }
 
     @Override
     public void OnHated(List<Song> list) {
-        mSongs = list;
+//        mSongs = list;
         songPagerAdapter.notifyDataSetChanged();
     }
 
@@ -239,10 +235,10 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
 
         @Override
         public int getCount() {
-            if (mSongs == null) {
+            if (moePlayerService == null || moePlayerService.getSongs() == null) {
                 return 0;
             } else {
-                return 1000;
+                return moePlayerService.getSongs().size();
             }
         }
 
@@ -255,9 +251,16 @@ public class MoePlayereFragment extends Fragment implements MoePlayerService.OnP
             TextView song = (TextView) view.findViewById(R.id.player_tv_song_title);
             TextView album = (TextView) view.findViewById(R.id.player_tv_album_title);
             ImageView cover = (ImageView) view.findViewById(player_iv_cover);
-            Song songInfo = mSongs.get(position % MoePlayerService.PLAY_LIST_SIZE);
+            Song songInfo = moePlayerService.getSongs().get(position);
             song.setText(songInfo.getTitle());
             album.setText(songInfo.getWiki_title());
+            mProgressBar.setMax(Integer.valueOf(songInfo.getStream_length()) * 1000);
+            getActivity().invalidateOptionsMenu();
+            if (songInfo.getFav_sub() == null) {
+                ibLike.setImageResource(R.drawable.btn_like);
+            } else {
+                ibLike.setImageResource(R.drawable.btn_liked);
+            }
             ImageLoader.getInstance().displayImage(songInfo.getCover().getLarge(), cover);
             container.addView(view);
             return view;
